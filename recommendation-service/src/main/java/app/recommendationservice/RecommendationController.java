@@ -14,7 +14,11 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * To run in chaos mode set CHAOS_MODE=true;
+ * REST API that returns recommendation identifiers for a given movie ID.
+ *
+ * <p>Chaos mode: set the environment variable {@code CHAOS_MODE=true} (binding
+ * to {@code chaos.mode}) to randomly simulate HTTP 503 and/or multi-second latency on some requests
+ * (see {@link #injectChaos()}).
  */
 @RestController
 @RequestMapping("/recommendations")
@@ -22,9 +26,17 @@ public class RecommendationController {
 
     private static final Logger log = LoggerFactory.getLogger(RecommendationController.class);
 
-    @Value("${chaos.mode:false}")  // reads env var CHAOS_MODE
+    /** When {@code true}, chaos injection runs on each request (env {@code CHAOS_MODE}). */
+    @Value("${chaos.mode:false}")
     private boolean chaosEnabled;
 
+    /**
+     * Returns a fixed recommendation list for the given movie unless chaos mode introduces failure
+     * or delay beforehand.
+     *
+     * @param movieId movie identifier from the path
+     * @return list of recommendation keys
+     */
     @GetMapping("/{movieId}")
     public List<String> getRecommendations(@PathVariable("movieId") String movieId) {
         if (chaosEnabled) {
@@ -33,6 +45,10 @@ public class RecommendationController {
         return List.of("rec-101", "rec-102", "rec-103");
     }
 
+    /**
+     * Randomly triggers failure modes independently: about 30% chance of throwing HTTP 503, and about
+     * 40% chance of sleeping 3–10 seconds.
+     */
     private void injectChaos() {
         ThreadLocalRandom rng = ThreadLocalRandom.current();
 
