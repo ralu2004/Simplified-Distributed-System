@@ -25,24 +25,29 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RecommendationController {
 
     private static final Logger log = LoggerFactory.getLogger(RecommendationController.class);
+    private final MovieCatalog catalog;
 
     /** When {@code true}, chaos injection runs on each request (env {@code CHAOS_MODE}). */
     @Value("${chaos.mode:false}")
     private boolean chaosEnabled;
 
+    public RecommendationController(MovieCatalog catalog) {
+        this.catalog = catalog;
+    }
+
     /**
-     * Returns a fixed recommendation list for the given movie unless chaos mode introduces failure
-     * or delay beforehand.
+     * Returns recommendation movie IDs sampled from the popularity pool unless chaos mode introduces
+     * failure or delay beforehand.
      *
      * @param movieId movie identifier from the path
-     * @return list of recommendation keys
+     * @return list of recommendation movie IDs
      */
     @GetMapping("/{movieId}")
     public List<String> getRecommendations(@PathVariable("movieId") String movieId) {
         if (chaosEnabled) {
             injectChaos();
         }
-        return List.of("rec-101", "rec-102", "rec-103");
+        return catalog.sampleRecommendations(3, movieId);
     }
 
     /**
