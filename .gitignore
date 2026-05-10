@@ -25,6 +25,9 @@ replay_pid*
 
 target/
 .idea/
+.vscode/
 *.iml
 .DS_Store
 HELP.md
+demo-artifacts/
+2026_SD_Assignment_3.pdf

@@ -10,6 +10,6 @@ spring:
         webmvc:
           routes:
             - id: movie-route
-              uri: http://localhost:8081
+              uri: ${MOVIE_SERVICE_URL:http://localhost:8081}
               predicates:
                 - Path=/movies/**
