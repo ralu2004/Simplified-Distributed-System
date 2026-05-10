@@ -6,6 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Subscribes to Resilience4j circuit breaker events for observability (state transitions on
+ * {@code recommendationCB}).
+ */
 @Component
 public class EventLogger {
 
@@ -16,6 +20,10 @@ public class EventLogger {
         this.registry = circuitBreakerRegistry;
     }
 
+    /**
+     * Registers a listener that logs each {@code recommendationCB} state transition after the context
+     * starts.
+     */
     @PostConstruct
     public void registerListener() {
         registry.circuitBreaker("recommendationCB")

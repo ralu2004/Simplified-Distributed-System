@@ -48,11 +48,13 @@ class RecommendationClientResilienceTest {
     @Autowired
     RecommendationClient recommendationClient;
 
+    /** Resilience4j aspects require a CGLIB proxy on the client bean. */
     @Test
     void clientBeanIsProxiedForResilience4j() {
         assertThat(isCglibProxy(recommendationClient)).isTrue();
     }
 
+    /** When the recommendation API returns HTTP 503, the configured fallback list is emitted. */
     @Test
     void serviceUnavailableUsesFallbackRecommendations() {
         StepVerifier.create(recommendationClient.getRecommendations("movie-1"))
