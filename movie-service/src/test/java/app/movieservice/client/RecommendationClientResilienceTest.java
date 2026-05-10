@@ -58,7 +58,10 @@ class RecommendationClientResilienceTest {
     @Test
     void serviceUnavailableUsesFallbackRecommendations() {
         StepVerifier.create(recommendationClient.getRecommendations("movie-1"))
-                .expectNext(List.of("Movie-1", "Movie-2", "Movie-3"))
+                .assertNext(recs -> {
+                    assertThat(recs).hasSize(5);
+                    assertThat(recs).allMatch(id -> id.matches("\\d+"));
+                })
                 .expectComplete()
                 .verify(Duration.ofSeconds(5));
     }

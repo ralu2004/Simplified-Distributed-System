@@ -1,5 +1,6 @@
 package app.movieservice.client;
 
+import app.movieservice.catalog.MovieCatalog;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,13 +19,17 @@ import java.util.List;
 public class RecommendationClient {
 
     private final WebClient webClient;
+    private final MovieCatalog movieCatalog;
 
     /**
      * @param builder Spring-managed {@link WebClient.Builder} used to create the client
      * @param baseUrl root URL of the recommendation service (e.g. {@code http://localhost:8082})
      */
-    public RecommendationClient(WebClient.Builder builder, @Value("${recommendation.url}") String baseUrl) {
+    public RecommendationClient(WebClient.Builder builder,
+                                @Value("${recommendation.url}") String baseUrl,
+                                MovieCatalog movieCatalog) {
         this.webClient = builder.baseUrl(baseUrl).build();
+        this.movieCatalog = movieCatalog;
     }
 
     /**
@@ -49,9 +54,9 @@ public class RecommendationClient {
      *
      * @param movieId same argument as the primary method (unused; required for Resilience4j signature)
      * @param t       failure that triggered the fallback
-     * @return a fixed list standing in for live recommendations
+     * @return a stable list of movie IDs from the local dataset standing in for live recommendations
      */
     public Mono<List<String>> fallback(String movieId, Throwable t) {
-        return Mono.just(List.of("Movie-1", "Movie-2", "Movie-3"));
+        return Mono.just(movieCatalog.firstNIds(5));
     }
 }
