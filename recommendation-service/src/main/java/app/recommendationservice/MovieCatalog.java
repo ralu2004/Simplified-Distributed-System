@@ -34,6 +34,7 @@ public class MovieCatalog {
 
     @PostConstruct
     public void load() throws IOException {
+
         Set<String> knownMovieIds = new HashSet<>();
         var movies = new ClassPathResource("movies.csv");
         try (var reader = new InputStreamReader(movies.getInputStream(), StandardCharsets.UTF_8);
@@ -45,7 +46,6 @@ public class MovieCatalog {
         }
 
         Map<String, Integer> ratingCounts = new HashMap<>();
-
         var ratings = new ClassPathResource("ratings.csv");
         try (var reader = new InputStreamReader(ratings.getInputStream(), StandardCharsets.UTF_8);
              var parser = CSVParser.parse(reader, CSVFormat.DEFAULT.builder()
